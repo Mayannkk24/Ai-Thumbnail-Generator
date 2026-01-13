@@ -4,6 +4,8 @@ import { colorSchemes, type AspectRatio, type IThumbnail, type ThumbnailStyle } 
 import SoftBackdrop from '../components/SoftBackdrop';
 import AspectRationSelector from '../components/AspectRationSelector';
 import StyleSelector from '../components/StyleSelector';
+import ColorSchemeSelector from '../components/ColorSchemeSelector';
+import PreviewPanel from '../components/PreviewPanel';
 
 const Generate = () => {
 
@@ -15,7 +17,7 @@ const Generate = () => {
         const [Loading, setLoading] = useState(false)
 
         const [aspectRatio,setaspectRatio] = useState<AspectRatio>('16:9')
-        const [colorScheme , setcolorScheme] = useState<string>(colorSchemes[0].id)
+        const [colorSchemeId , setcolorSchemeId] = useState<string>(colorSchemes[0].id)
         const [style,setStyle] = useState<ThumbnailStyle>('Bold & Graphics')
 
         const [styleDropdownOpen, setstyleDropdownOpen] = useState(false)
@@ -50,7 +52,9 @@ const Generate = () => {
                      
                      {/* StyleSelector */}
                      <StyleSelector value={style} onChange={setStyle} isOpen={styleDropdownOpen} SetIsOpen={setstyleDropdownOpen}/>
+
                      {/* ColorSchemeSelector */}
+                     <ColorSchemeSelector value={colorSchemeId} onChange={setcolorSchemeId}/>
 
                         {/* Details */}
                         <div className='space-y-2'>
@@ -73,7 +77,12 @@ const Generate = () => {
                </div>
             </div>
             {/* right panel */}
-            <div></div>
+            <div>
+              <div className='p-6 rounded-2xl bg-white/8 border border-white/10 shadow-xl'>
+                <h2 className='text-lg font-semibold text-zinc-100 mb-4'>Preview</h2>
+                <PreviewPanel thumbnail={thumbnail} isLoading={Loading} aspectRatio={aspectRatio}/>
+              </div>
+            </div>
          </div>
         </main>
 
