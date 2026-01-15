@@ -1,6 +1,6 @@
-import React, { use, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { colorSchemes, type AspectRatio, type IThumbnail, type ThumbnailStyle } from '../assets/assets';
+import { colorSchemes, dummyThumbnails, type AspectRatio, type IThumbnail, type ThumbnailStyle } from '../assets/assets';
 import SoftBackdrop from '../components/SoftBackdrop';
 import AspectRationSelector from '../components/AspectRationSelector';
 import StyleSelector from '../components/StyleSelector';
@@ -21,6 +21,30 @@ const Generate = () => {
         const [style,setStyle] = useState<ThumbnailStyle>('Bold & Graphics')
 
         const [styleDropdownOpen, setstyleDropdownOpen] = useState(false)
+
+        const handleGenerate = async ()=> {
+           
+        }
+
+        const fetchThumbnail = async ()=> {
+           if(id){
+             const thumbnail : any = dummyThumbnails.find((thumbnail)=> thumbnail._id === id)
+              setThumbnail(thumbnail )
+              setAdditionalDetails(thumbnail.user_prompt)
+              setTitle(thumbnail.title)
+              setcolorSchemeId(thumbnail.color_scheme)
+              setaspectRatio(thumbnail.aspect_ratio)
+              setStyle(thumbnail.style)
+              setLoading(false)
+             
+           }
+
+        }
+        useEffect(()=>{
+          if(id){
+            fetchThumbnail()
+          }
+        },[id])
 
   return (
     <>
@@ -70,7 +94,7 @@ const Generate = () => {
                   {/* Button */}
 
                   {!id && (
-                    <button className='text-[15px] w-full py-3.5 rounded-xl font-medium bg-linear-to-b from-pink-500 to-pink-600 hover:from-pink-700 disabled:cursor-not-allowed transition-colors'>
+                    <button onClick={handleGenerate} className='text-[15px] w-full py-3.5 rounded-xl font-medium bg-linear-to-b from-pink-500 to-pink-600 hover:from-pink-700 disabled:cursor-not-allowed transition-colors'>
                       {Loading ? 'Generating...' : 'Generate Thumbnail'}
                     </button>
                   )}
