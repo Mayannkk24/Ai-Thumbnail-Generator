@@ -59,7 +59,7 @@ export interface IUser {
 
 export const dummyThumbnails = [
     {
-        _id: "69451ff3c9ea67e4c930f6a6",
+        _id: "MoKey_00",
         userId: "6942b3bd2a93a220baa331b3",
         title: "Top smartwatch under 1499",
         style: "Bold & Graphic",
