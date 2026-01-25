@@ -13,7 +13,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@google/genai": "^1.38.0",
     "@huggingface/inference": "^4.13.10",
     "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
