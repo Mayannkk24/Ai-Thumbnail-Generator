@@ -1,20 +1,27 @@
-import React, { use, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { colorSchemes, dummyThumbnails, type AspectRatio, type IThumbnail, type ThumbnailStyle } from '../assets/assets';
+import React, { useEffect, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { colorSchemes, type AspectRatio, type IThumbnail, type ThumbnailStyle } from '../assets/assets';
 import SoftBackdrop from '../components/SoftBackdrop';
 import AspectRationSelector from '../components/AspectRationSelector';
 import StyleSelector from '../components/StyleSelector';
 import ColorSchemeSelector from '../components/ColorSchemeSelector';
 import PreviewPanel from '../components/PreviewPanel';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
+import api from '../config/api';
 
 const Generate = () => {
 
   const {id} = useParams();
+  const {pathname} = useLocation();
+  const navigate = useNavigate();
+  const {isLoggedIn} = useAuth();
+
   const [title, setTitle] = useState('')
     const [additionalDetails , setAdditionalDetails] = useState('')
 
       const [thumbnail, setThumbnail] = useState<IThumbnail | null>(null)
-        const [Loading, setLoading] = useState(false)
+        const [loading, setLoading] = useState(false)
 
         const [aspectRatio,setaspectRatio] = useState<AspectRatio>('16:9')
         const [colorSchemeId , setcolorSchemeId] = useState<string>(colorSchemes[0].id)
@@ -23,28 +30,62 @@ const Generate = () => {
         const [styleDropdownOpen, setstyleDropdownOpen] = useState(false)
 
         const handleGenerate = async ()=> {
-           
+           if(!isLoggedIn) return toast.error('Please login to generate to thumbnails')
+            if(!title.trim()) return toast.error('Title is required')
+              setLoading(true)
+
+           const api_payload = {
+            title,
+            prompt: additionalDetails,
+            style,
+            aspect_ratio : aspectRatio,
+            color_scheme: colorSchemeId,
+            text_overlay: true,
+           }
+
+           const {data} = await api.post('/api/thumbnail/generate', api_payload);
+           if(data.thumbnail){
+                  navigate('/generate/' + data.thumbnail._id)
+                  toast.success(data.message)
+           }
         }
 
         const fetchThumbnail = async ()=> {
-           if(id){
-             const thumbnail : any = dummyThumbnails.find((thumbnail)=> thumbnail._id === id)
-              setThumbnail(thumbnail )
-              setAdditionalDetails(thumbnail.user_prompt)
-              setTitle(thumbnail.title)
-              setcolorSchemeId(thumbnail.color_scheme)
-              setaspectRatio(thumbnail.aspect_ratio)
-              setStyle(thumbnail.style)
-              setLoading(false)
+           try {
+            const {data} = await api.get(`/api/user/thumbnail/${id}`);
+            setThumbnail(data?.thumbnail as IThumbnail);
+            setLoading(!data?.thumbnail?.image_url);
+            setAdditionalDetails(data?.thumbnail?.user_prompt);
+            setTitle(data?.thumbnail?.title);
+            setcolorSchemeId(data?.thumbnail?.color_scheme);
+            setaspectRatio(data?.thumbnail?.aspect_ratio);
+            setStyle(data?.thumbnail?.style);
+
+           } catch (error:any) {
+              console.log(error);
+              toast.error(error?.response?.data?.message|| error.message)
+           }
              
            }
 
-        }
+        
         useEffect(()=>{
-          if(id){
+          if(isLoggedIn && id){
             fetchThumbnail()
           }
-        },[id])
+          if(id && loading && isLoggedIn){
+            const interval = setInterval(()=>{
+               fetchThumbnail()
+            },5000)
+            return ()=> clearInterval(interval)
+        }
+        },[id,loading,isLoggedIn])
+
+        useEffect(()=>{
+          if(!id && thumbnail){
+            setThumbnail(null)
+          }
+        },[pathname])
 
   return (
     <>
@@ -95,7 +136,7 @@ const Generate = () => {
 
                   {!id && (
                     <button onClick={handleGenerate} className='text-[15px] w-full py-3.5 rounded-xl font-medium bg-linear-to-b from-pink-500 to-pink-600 hover:from-pink-700 disabled:cursor-not-allowed transition-colors'>
-                      {Loading ? 'Generating...' : 'Generate Thumbnail'}
+                      {loading ? 'Generating...' : 'Generate Thumbnail'}
                     </button>
                   )}
                </div>
@@ -104,7 +145,7 @@ const Generate = () => {
             <div>
               <div className='p-6 rounded-2xl bg-white/8 border border-white/10 shadow-xl'>
                 <h2 className='text-lg font-semibold text-zinc-100 mb-4'>Preview</h2>
-                <PreviewPanel thumbnail={thumbnail} isLoading={Loading} aspectRatio={aspectRatio}/>
+                <PreviewPanel thumbnail={thumbnail} isLoading={loading} aspectRatio={aspectRatio}/>
               </div>
             </div>
          </div>
@@ -116,3 +157,7 @@ const Generate = () => {
 }
 
 export default Generate
+function fetchThumbnail() {
+  throw new Error('Function not implemented.');
+}
+

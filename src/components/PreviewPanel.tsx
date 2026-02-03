@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { createElement } from 'react'
 import type { AspectRatio, IThumbnail } from '../assets/assets'
 import { DownloadIcon, ImageIcon, Loader2Icon } from 'lucide-react';
 
@@ -12,7 +12,11 @@ const PreviewPanel = ({thumbnail , isLoading , aspectRatio}: {thumbnail:IThumbna
 
     const OnDownload = ()=>{
         if(!thumbnail?.image_url) return;
-        window.open(thumbnail.image_url , '_blank')
+        const link = document.createElement('a');
+        link.href  = thumbnail?.image_url.replace('/upload','upload/f1_attachment')
+        document.body.appendChild(link);
+        link.click()
+        link.remove()
     }
 
   return (

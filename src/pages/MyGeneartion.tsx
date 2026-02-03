@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import SoftBackdrop from '../components/SoftBackdrop'
-import { dummyThumbnails, type IThumbnail } from '../assets/assets'
-import { i, img } from 'motion/react-client'
+import { type IThumbnail } from '../assets/assets'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRightIcon, DownloadIcon, TrashIcon } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
+import api from '../config/api'
+import toast from 'react-hot-toast'
 
 const MyGeneartion = () => {
 
+  const {isLoggedIn} = useAuth()
   const navigate = useNavigate();
+
 
   const aspectRatioClassMap : Record<string, string>={
        '16:9': 'aspect-video',
@@ -18,21 +22,47 @@ const MyGeneartion = () => {
 
   const [thumbnails, setThumbnails] = useState<IThumbnail[]>([])
   const [loading, setLoading] = useState(false)
+
   const fetchThumbnails = async ()=> {
-  setThumbnails(dummyThumbnails as unknown as IThumbnail[])
+ try {
+  setLoading(true)
+  const {data} = await api.get('/api/user/thumbnails')
+  setThumbnails(data.thumbnail || [])
+ } catch (error:any) {
+    console.log(error);
+    toast.error(error?.response?.data?.message || error.message)
+ }
+ finally{
   setLoading(false)
+ }
   }
 
   const handleDowanload = (image_url:string)=>{
-    window.open(image_url , '_blank')
+      const link = document.createElement('a');
+            link.href  = image_url.replace('/upload','upload/f1_attachment')
+            document.body.appendChild(link);
+            link.click()
+            link.remove()
   }
 
   const handleDelete = async (id:string)=>{
-   console.log(id);
+   try {
+    const confirm = window.confirm('Are you Sure you want to delete the thumbnail?')
+    if(!confirm) return;
+    const {data} = await api.delete(`/api/thumbnail/delete/${id}`)
+    toast.success(data.message)
+    setThumbnails(thumbnails.filter((t)=>t._id !== id));
+   } catch (error:any) {
+    console.log(error);
+    toast.error(error?.response?.data?.message || error.message)
+   }
   }
   
     useEffect(()=>{
-      fetchThumbnails()
+      if(isLoggedIn){
+        fetchThumbnails()
+      }
+      
     },[])
 
   return (
