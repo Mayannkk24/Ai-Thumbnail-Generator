@@ -46,10 +46,10 @@ const bannedWords = [
 ];
 
 const isUnsafePrompt = (text: string) =>
-  bannedWords.some(word => text.toLowerCase().includes(word));
+  bannedWords.some((word) => text.toLowerCase().includes(word));
 
 /* ===============================
-   🎯 GENERATE THUMBNAIL
+   🎯 GENERATE / IMPROVE THUMBNAIL
 ================================ */
 export const generateThumbnail = async (req: Request, res: Response) => {
   try {
@@ -62,6 +62,7 @@ export const generateThumbnail = async (req: Request, res: Response) => {
       aspect_ratio,
       color_scheme,
       text_overlay,
+      parent_thumbnail_id, // 🔥 NEW
     } = req.body;
 
     // Validation
@@ -86,21 +87,32 @@ export const generateThumbnail = async (req: Request, res: Response) => {
       color_scheme,
       text_overlay,
       isGenerating: true,
+      parent_thumbnail_id: parent_thumbnail_id || null, // 🔥 STORE RELATION
     });
 
-    // Build AI prompt
+    // -----------------------------
+    // 🧠 BUILD AI PROMPT
+    // -----------------------------
     let prompt = `Create a family-friendly, professional YouTube thumbnail. `;
     prompt += `Style: ${stylePrompts[style as keyof typeof stylePrompts]}. `;
     prompt += `Title: "${title}". `;
 
     if (color_scheme) {
       prompt += `Color theme: ${
-        colorSchemeDescriptions[color_scheme as keyof typeof colorSchemeDescriptions]
+        colorSchemeDescriptions[
+          color_scheme as keyof typeof colorSchemeDescriptions
+        ]
       }. `;
     }
 
     if (user_prompt) {
       prompt += `Extra details: ${user_prompt}. `;
+    }
+
+    // 🔥 IMPROVEMENT LOGIC
+    if (parent_thumbnail_id) {
+      prompt +=
+        "Improve clarity, increase contrast, enhance text readability, better composition balance, avoid clutter, more clickable layout. ";
     }
 
     prompt += `Aspect ratio ${aspect_ratio}. High quality. Clickable. Clean.`;
@@ -116,29 +128,22 @@ export const generateThumbnail = async (req: Request, res: Response) => {
     /* ===============================
        🔁 SAFE IMAGE CONVERSION
     ================================ */
-   let buffer: Buffer;
+    let buffer: Buffer;
 
-// Blob-like (HF Node response)
-if (typeof image === "object" && image !== null && "arrayBuffer" in image) {
-  const arrayBuffer = await (image as any).arrayBuffer();
-  buffer = Buffer.from(arrayBuffer);
-
-// base64 string
-} else if (typeof image === "string") {
-  buffer = Buffer.from(image, "base64");
-
-// ArrayBuffer-like (safe check)
-} else if (
-  typeof image === "object" &&
-  image !== null &&
-  "byteLength" in image
-) {
-  buffer = Buffer.from(image as ArrayBuffer);
-
-} else {
-  throw new Error("Unsupported image format returned from Hugging Face");
-}
-
+    if (typeof image === "object" && image !== null && "arrayBuffer" in image) {
+      const arrayBuffer = await (image as any).arrayBuffer();
+      buffer = Buffer.from(arrayBuffer);
+    } else if (typeof image === "string") {
+      buffer = Buffer.from(image, "base64");
+    } else if (
+      typeof image === "object" &&
+      image !== null &&
+      "byteLength" in image
+    ) {
+      buffer = Buffer.from(image as ArrayBuffer);
+    } else {
+      throw new Error("Unsupported image format returned from Hugging Face");
+    }
 
     /* ===============================
        💾 SAVE + CLOUDINARY
@@ -160,10 +165,11 @@ if (typeof image === "object" && image !== null && "arrayBuffer" in image) {
     fs.unlinkSync(filepath);
 
     return res.json({
-      message: "Thumbnail generated successfully",
+      message: parent_thumbnail_id
+        ? "Improved thumbnail generated successfully"
+        : "Thumbnail generated successfully",
       thumbnail,
     });
-
   } catch (error: any) {
     console.error(error);
     return res.status(500).json({
@@ -186,6 +192,53 @@ export const deleteThumbnail = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error(error);
     res.status(500).json({
+      message: error.message || "Internal Server Error",
+    });
+  }
+};
+/* ===============================
+   👍 👎 UPDATE THUMBNAIL FEEDBACK
+================================ */
+export const updateThumbnailFeedback = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { thumbnailId, feedback } = req.body;
+    const { userId } = req.session;
+
+    // Validation
+    if (!thumbnailId || !feedback) {
+      return res.status(400).json({
+        message: "Thumbnail ID and feedback are required",
+      });
+    }
+
+    if (!["like", "dislike"].includes(feedback)) {
+      return res.status(400).json({
+        message: "Invalid feedback value",
+      });
+    }
+
+    const thumbnail = await Thumbnail.findOneAndUpdate(
+      { _id: thumbnailId, userId },
+      { feedback },
+      { new: true }
+    );
+
+    if (!thumbnail) {
+      return res.status(404).json({
+        message: "Thumbnail not found",
+      });
+    }
+
+    return res.json({
+      message: "Feedback saved successfully",
+      thumbnail,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({
       message: error.message || "Internal Server Error",
     });
   }

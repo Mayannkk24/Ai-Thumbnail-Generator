@@ -1,37 +1,135 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IThumbnail extends Document {
-    userId: string;
-    title: string;
-    description?: string;
-    style: "Bold & Graphic" | "Tech/Futuristic" | "Minimalist" | "Photorealistic" | "Illustrated";
-    aspect_ratio?: "16:9" | "1:1" | "9:16";
-    color_scheme?: "vibrant" | "sunset" | "forest" | "neon" | "purple" | "monochrome" | "ocean" | "pastel";
-    text_overlay?: boolean;
-    image_url?: string;
-    prompt_used?: string;
-    user_prompt?: string;
-    isGenerating?: boolean;
-    createdAt?: Date;
-    updatedAt?: Date;
+  userId: string;
+  title: string;
+  description?: string;
+  style:
+    | "Bold & Graphic"
+    | "Tech/Futuristic"
+    | "Minimalist"
+    | "Photorealistic"
+    | "Illustrated";
+  aspect_ratio?: "16:9" | "1:1" | "9:16";
+  color_scheme?:
+    | "vibrant"
+    | "sunset"
+    | "forest"
+    | "neon"
+    | "purple"
+    | "monochrome"
+    | "ocean"
+    | "pastel";
+  text_overlay?: boolean;
+  image_url?: string;
+  prompt_used?: string;
+  user_prompt?: string;
+  isGenerating?: boolean;
+
+  // 🔥 NEW FIELDS
+  feedback?: "like" | "dislike";
+  parent_thumbnail_id?: mongoose.Types.ObjectId;
+
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-const ThumbnailSchema = new mongoose.Schema<IThumbnail>(
-    {
-    userId: {type: String, ref: "User", required: true},
-    title:  {type: String, required: true, trim: true},
-    description:  {type: String,trim: true},
-    style: {type: String,required: true, trim: true, enum: ["Bold & Graphic", "Tech/Futuristic", "Minimalist", "Photorealistic", "Illustrated"]},
-    aspect_ratio: {type: String, enum: ["16:9", "1:1", "9:16"],default: "16:9"},
-    color_scheme: {type: String, enum: ["vibrant", "sunset", "forest", "neon", "purple", "monochrome", "ocean", "pastel"]},
-    text_overlay: {type: Boolean, default: false},
-    image_url: {type: String, default: ""},
-    prompt_used: {type: String},
-    user_prompt: {type: String},
-    isGenerating: {type: Boolean, default: true},
-    }
-)
+const ThumbnailSchema = new Schema<IThumbnail>(
+  {
+    userId: {
+      type: String,
+      ref: "User",
+      required: true,
+    },
 
-const Thumbnail = mongoose.models.Thumbnail || mongoose.model('Thumbnail', ThumbnailSchema);
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    description: {
+      type: String,
+      trim: true,
+    },
+
+    style: {
+      type: String,
+      required: true,
+      trim: true,
+      enum: [
+        "Bold & Graphic",
+        "Tech/Futuristic",
+        "Minimalist",
+        "Photorealistic",
+        "Illustrated",
+      ],
+    },
+
+    aspect_ratio: {
+      type: String,
+      enum: ["16:9", "1:1", "9:16"],
+      default: "16:9",
+    },
+
+    color_scheme: {
+      type: String,
+      enum: [
+        "vibrant",
+        "sunset",
+        "forest",
+        "neon",
+        "purple",
+        "monochrome",
+        "ocean",
+        "pastel",
+      ],
+    },
+
+    text_overlay: {
+      type: Boolean,
+      default: false,
+    },
+
+    image_url: {
+      type: String,
+      default: "",
+    },
+
+    prompt_used: {
+      type: String,
+    },
+
+    user_prompt: {
+      type: String,
+    },
+
+    isGenerating: {
+      type: Boolean,
+      default: true,
+    },
+
+    // 🔥 FEEDBACK SYSTEM
+    feedback: {
+      type: String,
+      enum: ["like", "dislike"],
+      default: null,
+    },
+
+    // 🔥 PARENT → CHILD THUMBNAIL LINK
+    parent_thumbnail_id: {
+      type: Schema.Types.ObjectId,
+      ref: "Thumbnail",
+      default: null,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const Thumbnail =
+  mongoose.models.Thumbnail ||
+  mongoose.model<IThumbnail>("Thumbnail", ThumbnailSchema);
 
 export default Thumbnail;
