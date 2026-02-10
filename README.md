@@ -35,9 +35,8 @@ based on user feedback (like / dislike) until the user is satisfied.
 - Git & GitHub
 
 ---
-
-```## 📁 Project Structure
-
+ 📁 Project Structure
+```
 ├── public
 ├── src
 │ ├── components # UI components
