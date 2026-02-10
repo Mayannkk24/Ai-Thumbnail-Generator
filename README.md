@@ -1,12 +1,40 @@
-# React + Vite
+# AI Thumbnail Generator with like and dislike option
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A full-stack AI-powered web application that generates thumbnails and continuously improves them
+based on user feedback (like / dislike) until the user is satisfied.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 How It Works
 
-## Expanding the ESLint configuration
+1. User requests a thumbnail
+2. AI generates a thumbnail using Hugging Face
+3. User clicks **Like** or **Dislike**
+4. If **Liked** → thumbnail is accepted
+5. If **Disliked** → AI regenerates an improved thumbnail
+6. Process repeats until the user likes the result
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## ✨ Features
+
+- AI-based thumbnail generation
+- Like / Dislike feedback loop
+- Automatic thumbnail improvement
+- Hugging Face inference integration
+- Modern and responsive UI
+
+---
+
+## 🛠 Tech Stack
+
+- React + Vite
+- TypeScript
+- Node.js + Express
+- Hugging Face Inference API
+- Git & GitHub
+
+---
+
+## 📁 Project Structure
+
