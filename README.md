@@ -36,7 +36,8 @@ based on user feedback (like / dislike) until the user is satisfied.
 
 ---
 
-## 📁 Project Structure
+```## 📁 Project Structure
+
 ├── public
 ├── src
 │ ├── components # UI components
@@ -51,3 +52,4 @@ based on user feedback (like / dislike) until the user is satisfied.
 │ └── config # Environment & setup
 ├── package.json
 └── README.md
+```
