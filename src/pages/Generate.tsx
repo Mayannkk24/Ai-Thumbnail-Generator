@@ -35,9 +35,9 @@ const Generate = () => {
 
   const [styleDropdownOpen, setStyleDropdownOpen] = useState(false);
 
-  // -----------------------------
+  // 
   // NORMAL GENERATE
-  // -----------------------------
+  // 
   const handleGenerate = async () => {
     if (!isLoggedIn)
       return toast.error("Please login to generate thumbnails");
@@ -56,7 +56,7 @@ const Generate = () => {
 
     try {
       const { data } = await api.post(
-        "/api/thumbnail/generate",
+        "/api/thumbnails/generate",
         api_payload
       );
 
@@ -69,9 +69,9 @@ const Generate = () => {
     }
   };
 
-  // -----------------------------
+  // 
   // IMPROVE (👎 DISLIKE FLOW)
-  // -----------------------------
+  // 
   const handleImprove = async () => {
     if (!thumbnail) return;
 
@@ -89,7 +89,7 @@ const Generate = () => {
 
     try {
       const { data } = await api.post(
-        "/api/thumbnail/generate",
+        "/api/thumbnails/generate",
         api_payload
       );
 
@@ -102,9 +102,9 @@ const Generate = () => {
     }
   };
 
-  // -----------------------------
+  
   // FETCH EXISTING THUMBNAIL
-  // -----------------------------
+  // 
   const fetchThumbnail = async () => {
     try {
       const { data } = await api.get(

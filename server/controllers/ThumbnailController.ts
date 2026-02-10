@@ -5,11 +5,11 @@ import fs from "fs";
 import { v2 as cloudinary } from "cloudinary";
 import hf from "../configs/ai.js";
 
-/* ===============================
+/* 
    🎨 STYLE PROMPTS
-================================ */
+ */
 const stylePrompts = {
-  "Bold & Graphic":
+  "Bold & Graphics":
     "eye-catching thumbnail, bold typography, vibrant colors, expressive facial reaction, dramatic lighting, high contrast, click-worthy composition, professional style",
   "Tech/Futuristic":
     "futuristic thumbnail, sleek modern design, digital UI elements, glowing accents, holographic effects, cyber-tech aesthetic, sharp lighting, high-tech atmosphere",
@@ -21,9 +21,9 @@ const stylePrompts = {
     "illustrated thumbnail, custom digital illustration, stylized characters, bold outlines, vibrant colors, creative cartoon or vector art style",
 };
 
-/* ===============================
+/* 
    🎨 COLOR SCHEMES
-================================ */
+*/
 const colorSchemeDescriptions = {
   vibrant: "vibrant and energetic colors, high saturation, bold contrasts",
   sunset: "warm sunset tones, orange pink and purple hues",
@@ -35,9 +35,9 @@ const colorSchemeDescriptions = {
   pastel: "soft pastel colors, calm and friendly aesthetic",
 };
 
-/* ===============================
+/* 
    🚨 SAFETY FILTER
-================================ */
+ */
 const bannedWords = [
   "nude", "porn", "sex", "xxx", "erotic", "naked", "boobs",
   "kill", "murder", "terrorist", "bomb",
@@ -48,9 +48,9 @@ const bannedWords = [
 const isUnsafePrompt = (text: string) =>
   bannedWords.some((word) => text.toLowerCase().includes(word));
 
-/* ===============================
+/* 
    🎯 GENERATE / IMPROVE THUMBNAIL
-================================ */
+ */
 export const generateThumbnail = async (req: Request, res: Response) => {
   try {
     const { userId } = req.session;
@@ -90,9 +90,9 @@ export const generateThumbnail = async (req: Request, res: Response) => {
       parent_thumbnail_id: parent_thumbnail_id || null, // 🔥 STORE RELATION
     });
 
-    // -----------------------------
+    // 
     // 🧠 BUILD AI PROMPT
-    // -----------------------------
+    // 
     let prompt = `Create a family-friendly, professional YouTube thumbnail. `;
     prompt += `Style: ${stylePrompts[style as keyof typeof stylePrompts]}. `;
     prompt += `Title: "${title}". `;
@@ -117,17 +117,17 @@ export const generateThumbnail = async (req: Request, res: Response) => {
 
     prompt += `Aspect ratio ${aspect_ratio}. High quality. Clickable. Clean.`;
 
-    /* ===============================
+    /* 
        🖼️ HUGGING FACE IMAGE GEN
-    ================================ */
+     */
     const image: unknown = await hf.textToImage({
       model: "stabilityai/stable-diffusion-xl-base-1.0",
       inputs: prompt,
     });
 
-    /* ===============================
+    /* 
        🔁 SAFE IMAGE CONVERSION
-    ================================ */
+     */
     let buffer: Buffer;
 
     if (typeof image === "object" && image !== null && "arrayBuffer" in image) {
@@ -145,9 +145,9 @@ export const generateThumbnail = async (req: Request, res: Response) => {
       throw new Error("Unsupported image format returned from Hugging Face");
     }
 
-    /* ===============================
+    /* 
        💾 SAVE + CLOUDINARY
-    ================================ */
+     */
     const filename = `thumbnail-${Date.now()}.png`;
     const filepath = path.join("images", filename);
 
@@ -178,9 +178,9 @@ export const generateThumbnail = async (req: Request, res: Response) => {
   }
 };
 
-/* ===============================
-   🗑️ DELETE THUMBNAIL
-================================ */
+/* 
+    DELETE THUMBNAIL
+*/
 export const deleteThumbnail = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -196,9 +196,9 @@ export const deleteThumbnail = async (req: Request, res: Response) => {
     });
   }
 };
-/* ===============================
+/* 
    👍 👎 UPDATE THUMBNAIL FEEDBACK
-================================ */
+ */
 export const updateThumbnailFeedback = async (
   req: Request,
   res: Response
