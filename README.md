@@ -37,4 +37,17 @@ based on user feedback (like / dislike) until the user is satisfied.
 ---
 
 ## 📁 Project Structure
-
+├── public
+├── src
+│ ├── components # UI components
+│ ├── pages # Application pages
+│ ├── context # Global state management
+│ ├── services # API calls
+│ └── utils # Helper functions
+├── server
+│ ├── controllers # Request handling logic
+│ ├── routes # API routes
+│ ├── services # AI & business logic
+│ └── config # Environment & setup
+├── package.json
+└── README.md
