@@ -1,4 +1,4 @@
-# AI Thumbnail Generator with like and dislike option
+# AI Thumbnail Generator with like and dislike options
 
 A full-stack AI-powered web application that generates thumbnails and continuously improves them
 based on user feedback (like / dislike) until the user is satisfied.
@@ -52,3 +52,17 @@ based on user feedback (like / dislike) until the user is satisfied.
 ├── package.json
 └── README.md
 ```
+## 📸 AI Thumbnail Improvement Demo
+
+### 🏠 Home Page
+![Home Page](screenshot/Home-Page.png)
+
+---
+
+### 🖼️ Initial AI-Generated Thumbnail
+![Initial Thumbnail](screenshot/Thumbnail%20Generated.png)
+
+---
+
+### 🔄 Improved Thumbnail After Dislike
+![Improved Thumbnail](screenshot/After%20dislike%20improved%20thumbnail.png)
